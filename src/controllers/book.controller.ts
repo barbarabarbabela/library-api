@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import books from "../library";
+import { Book } from "../interfaces/book.interface";
 
 const getAllBooks = (req: Request, res: Response) => {
   res.status(200).send(books);
@@ -12,11 +13,9 @@ const getBookById = (req: Request, res: Response) => {
 };
 
 const createBook = (req: Request, res: Response) => {
-  const { body } = req;
+  const body: Omit<Book, 'id'> = req.body
 
-  console.log(books.length);
-
-  const newBook = {
+  const newBook: Book = {
     id: books.length + 1,
     ...body,
   };
