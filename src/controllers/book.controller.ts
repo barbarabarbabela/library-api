@@ -37,14 +37,26 @@ const updateBookById = (req: Request, res: Response) => {
     ...newBookData,
   };
 
-  res.status(201).json({ message: "Book successfully updated", books });
+  res.status(200).json({ message: "Book successfully updated", books });
 };
 
-const bookController = {
+const deleteBookById = (req: Request, res: Response) => {
+  const id: number = Number(req.params.id)
+
+  const bookIndex = books.findIndex((book) => book.id === id);
+
+  books.splice(bookIndex, 1)
+
+  res.status(200).json({ message: "Book successfully deleted", books})
+
+}
+
+
+
+export const bookController = {
   getAllBooks,
   getBookById,
   createBook,
   updateBookById,
+  deleteBookById
 };
-
-export { bookController };
