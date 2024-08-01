@@ -25,4 +25,20 @@ const createBook = (req: Request, res: Response) => {
   res.status(201).json({ message: "Book succesfully created", book: newBook });
 };
 
-export { getAllBooks, getBookById, createBook };
+const updateBookById = (req: Request, res: Response) => {
+  const id = Number(req.params.id)
+
+  const newBookData = req.body
+
+  const bookIndex = books.findIndex(book => book.id === id)
+
+  books[bookIndex] = {
+    ...books[bookIndex],
+    ...newBookData
+  }
+
+  res.status(201).json({ message: "Book successfully updated",  books})
+
+}
+
+export { getAllBooks, getBookById, createBook, updateBookById };
