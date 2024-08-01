@@ -26,7 +26,7 @@ const createBook = (req: Request, res: Response) => {
 };
 
 const updateBookById = (req: Request, res: Response) => {
-  const id: number = Number(req.params.id);
+  const id = Number(req.params.id);
 
   const newBookData: Partial<Book> = req.body;
 
@@ -41,22 +41,19 @@ const updateBookById = (req: Request, res: Response) => {
 };
 
 const deleteBookById = (req: Request, res: Response) => {
-  const id: number = Number(req.params.id)
+  const id = Number(req.params.id);
 
   const bookIndex = books.findIndex((book) => book.id === id);
 
-  books.splice(bookIndex, 1)
+  books.splice(bookIndex, 1);
 
-  res.status(200).json({ message: "Book successfully deleted", books})
-
-}
-
-
+  res.status(200).json({ message: "Book successfully deleted", books });
+};
 
 export const bookController = {
   getAllBooks,
   getBookById,
   createBook,
   updateBookById,
-  deleteBookById
+  deleteBookById,
 };
