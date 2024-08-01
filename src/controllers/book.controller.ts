@@ -13,7 +13,7 @@ const getBookById = (req: Request, res: Response) => {
 };
 
 const createBook = (req: Request, res: Response) => {
-  const body: Omit<Book, 'id'> = req.body
+  const body: Omit<Book, "id"> = req.body;
 
   const newBook: Book = {
     id: books.length + 1,
@@ -26,19 +26,25 @@ const createBook = (req: Request, res: Response) => {
 };
 
 const updateBookById = (req: Request, res: Response) => {
-  const id = Number(req.params.id)
+  const id: number = Number(req.params.id);
 
-  const newBookData = req.body
+  const newBookData: Partial<Book> = req.body;
 
-  const bookIndex = books.findIndex(book => book.id === id)
+  const bookIndex = books.findIndex((book) => book.id === id);
 
   books[bookIndex] = {
     ...books[bookIndex],
-    ...newBookData
-  }
+    ...newBookData,
+  };
 
-  res.status(201).json({ message: "Book successfully updated",  books})
+  res.status(201).json({ message: "Book successfully updated", books });
+};
 
-}
+const bookController = {
+  getAllBooks,
+  getBookById,
+  createBook,
+  updateBookById,
+};
 
-export { getAllBooks, getBookById, createBook, updateBookById };
+export { bookController };
