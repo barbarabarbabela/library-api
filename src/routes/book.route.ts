@@ -1,16 +1,13 @@
 import { Router } from "express";
 import {
-  createBook,
-  getAllBooks,
-  getBookById,
-  updateBookById,
+  bookController
 } from "../controllers/book.controller";
 
 const router = Router();
 
-router.get("/books", getAllBooks);
-router.get("/books/:id", getBookById);
-router.post("/books", createBook);
-router.patch("/books/:id", updateBookById)
+router.get("/books", bookController.getAllBooks);
+router.get("/books/:id", bookController.getBookById);
+router.post("/books", bookController.createBook);
+router.patch("/books/:id", bookController.updateBookById)
 
 export default router;
