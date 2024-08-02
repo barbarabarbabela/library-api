@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import books from "../library";
+import books from "../books";
 import { Book } from "../interfaces/book.interface";
 
 const getAllBooks = (req: Request, res: Response) => {
@@ -19,7 +19,6 @@ const createBook = (req: Request, res: Response) => {
     id: books.length + 1,
     ...body,
   };
-
   books.push(newBook);
 
   res.status(201).json({ message: "Book succesfully created", book: newBook });
@@ -28,13 +27,13 @@ const createBook = (req: Request, res: Response) => {
 const updateBookById = (req: Request, res: Response) => {
   const id = Number(req.params.id);
 
-  const newBookData: Partial<Book> = req.body;
+  const body: Partial<Book> = req.body;
 
   const bookIndex = books.findIndex((book) => book.id === id);
 
   books[bookIndex] = {
     ...books[bookIndex],
-    ...newBookData,
+    ...body,
   };
 
   res.status(200).json({ message: "Book successfully updated", books });
