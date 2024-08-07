@@ -15,8 +15,6 @@ const getRentalByUser = (req: Request, res: Response) => {
 const createBookRental = (req: Request, res: Response) => {
   const { userId, bookId, startDate } = req.body;
 
-  console.log("chegou auqi?");
-
   if (!userId || !bookId || !startDate || !Array.isArray(bookId)) {
     return res
       .status(400)
@@ -38,7 +36,7 @@ const createBookRental = (req: Request, res: Response) => {
 
   rentals.push(newRental);
 
-  res.status(201).send(newRental);
+  res.status(201).json({ message: `Book succesfully rented by user ${userId}`});
 };
 
 export const bookRentalController = {
