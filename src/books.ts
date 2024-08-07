@@ -29,6 +29,34 @@ const books: Book[] = [
     genre: "Fiction",
     publishedYear: 1915,
   },
+  {
+    id: 5,
+    title: "To Kill a Mockingbird",
+    author: "Harper Lee",
+    genre: "Fiction",
+    publishedYear: 1960,
+  },
+  {
+    id: 6,
+    title: "Pride and Prejudice",
+    author: "Jane Austen",
+    genre: "Romance",
+    publishedYear: 1813,
+  },
+  {
+    id: 7,
+    title: "Brave New World",
+    author: "Aldous Huxley",
+    genre: "Dystopia",
+    publishedYear: 1932,
+  },
+  {
+    id: 8,
+    title: "The Catcher in the Rye",
+    author: "J.D. Salinger",
+    genre: "Fiction",
+    publishedYear: 1951,
+  },
 ];
 
 export default books;
