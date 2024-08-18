@@ -1,4 +1,5 @@
 import { User } from "../interfaces/user.interface";
+import { userService } from "../services/user.service";
 import users from "../users";
 import { Request, Response } from "express";
 
@@ -9,46 +10,51 @@ const getAllUsers = (req: Request, res: Response) => {
 const getUserById = (req: Request, res: Response) => {
   const { id } = req.params;
 
-  const foundedUser = users.find((user) => user.id === Number(id));
+  const user = userService.getUserById(Number(id))
 
-  res.status(200).send(foundedUser);
+  res.status(200).send(user);
 };
 
 const createUser = (req: Request, res: Response) => {
-  const body: Omit<User, "id"> = req.body;
+  const body = req.body;
 
-  const newUser = {
-    id: users.length + 1,
-    ...body,
-  };
 
-  users.push(newUser);
-
-  res.status(201).json({ message: "User succesfully created", user: newUser });
+  userService.createUser(body)
+  .then((data: User | Error) => {
+    if (data instanceof Error) {
+      return res.status(400).json({ message: data.message });
+    }
+    res.status(201).json({ message: "User succesfully created" });
+  })
+  .catch((error: unknown) => {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  });
 };
 
 const updateUser = (req: Request, res: Response) => {
   const { id } = req.params;
-  const body: Partial<User> = req.body;
+  const body = req.body;
 
-  const userIndex = users.findIndex((user) => user.id === Number(id));
+  const user = userService.updateUser(Number(id), body)
 
-  users[userIndex] = {
-    ...users[userIndex],
-    ...body
+  if(!user) {
+    return res.status(404).send({ message: "User not found" });
   }
 
-  res.status(200).json({ message: "User successfully updated", users });
+  res.status(200).json({ message: "User successfully updated" });
 };
 
 const deleteUser = (req: Request, res: Response) => {
   const { id } = req.params
   
-  const userIndex = users.findIndex(user => user.id === Number(id))
+  const user = userService.deleteUser(Number(id))
 
-  users.splice(userIndex, 1)
+  if (!user) {
+    return res.status(404).send({ message: "User not found" });
+  }
 
-  res.status(200).json({ message: "User successfully deleted", users });
+  res.status(200).json({ message: "User successfully deleted" });
 }
 
 export const userController = {

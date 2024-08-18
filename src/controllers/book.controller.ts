@@ -28,7 +28,7 @@ const createBook = (req: Request, res: Response) => {
       if (data instanceof Error) {
         return res.status(400).json({ message: data.message });
       }
-      res.status(201).json({ message: "Book succesfully created", book: data });
+      res.status(201).json({ message: "Book succesfully created" });
     })
     .catch((error: unknown) => {
       console.error(error);
