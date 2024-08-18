@@ -1,6 +1,10 @@
 import { Request, Response } from "express";
 import rentals from "../book-rental";
-import { BookRental } from "../interfaces/book-rental.interface";
+import { bookRentalService } from "../services/book-rental.service";
+
+const getAllRentals = (req: Request, res: Response) => {
+ res.status(200).send(rentals)
+}
 
 const getRentalByUser = (req: Request, res: Response) => {
   const { userId } = req.params;
@@ -13,33 +17,23 @@ const getRentalByUser = (req: Request, res: Response) => {
 };
 
 const createBookRental = (req: Request, res: Response) => {
-  const { userId, bookId, startDate } = req.body;
+  const { body } = req;
 
-  if (!userId || !bookId || !startDate || !Array.isArray(bookId)) {
-    return res
-      .status(400)
-      .send({
-        error: "All fields are required",
-      });
-  }
+  bookRentalService.createBookRental(body)
+  .then(data => {
+    if (data instanceof Error) {
+      return res.status(400).json({ error: data.message });
+    }
 
-  const dueDateTimestamp =
-    new Date(startDate).getTime() + 14 * 24 * 60 * 60 * 1000;
-
-  const newRental: BookRental = {
-    id: rentals.length + 1,
-    userId,
-    bookId,
-    startDate,
-    dueDate: new Date(dueDateTimestamp).toISOString(),
-  };
-
-  rentals.push(newRental);
-
-  res.status(201).json({ message: `Book succesfully rented by user ${userId}`});
+    res.status(201).json({ message: `Book successfully rented`, rental: data });
+  })
+  .catch(error => {
+    res.status(500).json({ error: 'Internal server error' });
+  });
 };
 
 export const bookRentalController = {
+  getAllRentals,
   getRentalByUser,
   createBookRental,
 };
