@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import books from "../books";
 import { Book } from "../interfaces/book.interface";
+import { bookService } from "../services/book.service";
 
 const getAllBooks = (req: Request, res: Response) => {
   res.status(200).send(books);
@@ -8,45 +9,57 @@ const getAllBooks = (req: Request, res: Response) => {
 
 const getBookById = (req: Request, res: Response) => {
   const { id } = req.params;
-  const book = books.find((book) => book.id === Number(id));
-  res.status(200).send(book);
+
+  const book = bookService.getBookById(Number(id));
+
+  if (book) {
+    return res.status(200).send(book);
+  }
+
+  return res.status(404).send({ message: "Book not found" });
 };
 
 const createBook = (req: Request, res: Response) => {
-  const body: Omit<Book, "id"> = req.body;
+  const body = req.body;
 
-  const newBook: Book = {
-    id: books.length + 1,
-    ...body,
-  };
-  books.push(newBook);
-
-  res.status(201).json({ message: "Book succesfully created", book: newBook });
+  bookService
+    .createBook(body)
+    .then((data: Book | Error) => {
+      if (data instanceof Error) {
+        return res.status(400).json({ message: data.message });
+      }
+      res.status(201).json({ message: "Book succesfully created", book: data });
+    })
+    .catch((error: unknown) => {
+      console.error(error);
+      res.status(500).json({ error: "Internal Server Error" });
+    });
 };
 
 const updateBookById = (req: Request, res: Response) => {
-  const id = Number(req.params.id);
+  const { id } = req.params;
 
-  const body: Partial<Book> = req.body;
+  const { body } = req;
 
-  const bookIndex = books.findIndex((book) => book.id === id);
+  const book = bookService.updateBookById(Number(id), body);
 
-  books[bookIndex] = {
-    ...books[bookIndex],
-    ...body,
-  };
+  if (!book) {
+    return res.status(404).send({ message: "Book not found" });
+  }
 
-  res.status(200).json({ message: "Book successfully updated", books });
+  res.status(200).json({ message: "Book successfully updated" });
 };
 
 const deleteBookById = (req: Request, res: Response) => {
   const id = Number(req.params.id);
 
-  const bookIndex = books.findIndex((book) => book.id === id);
+  const book = bookService.deleteBookById(id);
 
-  books.splice(bookIndex, 1);
+  if (!book) {
+    return res.status(404).send({ message: "Book not found" });
+  }
 
-  res.status(200).json({ message: "Book successfully deleted", books });
+  res.status(200).json({ message: "Book successfully deleted" });
 };
 
 export const bookController = {

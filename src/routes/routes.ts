@@ -17,6 +17,7 @@ router.post("/users", userController.createUser)
 router.patch("/users/:id", userController.updateUser)
 router.delete("/users/:id", userController.deleteUser)
 
+router.get("/rentals", bookRentalController.getAllRentals)
 router.get("/:userId/rentals", bookRentalController.getRentalByUser)
 router.post("/rentals", bookRentalController.createBookRental)
 
