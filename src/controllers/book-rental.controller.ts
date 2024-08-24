@@ -1,12 +1,14 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import rentals from "../book-rental";
 import { bookRentalService } from "../services/book-rental.service";
+import { BookRental } from "../interfaces/book-rental.interface";
+import ValidationError from "../errors/validation-error";
 
 const getAllRentals = (req: Request, res: Response) => {
- res.status(200).send(rentals)
-}
+  res.status(200).send(rentals);
+};
 
-const getRentalByUser = (req: Request, res: Response) => {
+const getRentalByUser = (req: Request, res: Response, next: NextFunction) => {
   const { userId } = req.params;
 
   const rentedBooks = rentals.filter(
@@ -16,20 +18,20 @@ const getRentalByUser = (req: Request, res: Response) => {
   res.status(200).send(rentedBooks);
 };
 
-const createBookRental = (req: Request, res: Response) => {
-  const { body } = req;
+const createBookRental = (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const body: BookRental = req.body;
 
-  bookRentalService.createBookRental(body)
-  .then(data => {
-    if (data instanceof Error) {
-      return res.status(400).json({ error: data.message });
+    if (!body.id || !body.startDate || !body.userId || !body.bookId) {
+      throw new ValidationError("Invalid input data");
     }
 
-    res.status(201).json({ message: `Book successfully rented`, rental: data });
-  })
-  .catch(error => {
-    res.status(500).json({ error: 'Internal server error' });
-  });
+    const newRental = bookRentalService.createBookRental(body);
+
+    res.status(201).json(newRental);
+  } catch (error) {
+    next(error);
+  }
 };
 
 export const bookRentalController = {
