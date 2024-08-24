@@ -1,3 +1,5 @@
+import InternalError from "../errors/internal-error";
+import NotFound from "../errors/not-found";
 import { User } from "../interfaces/user.interface";
 import users from "../users";
 
@@ -7,12 +9,8 @@ const getUserById = (id: number) => {
   return foundedUser;
 };
 
-const createUser = async (data: User): Promise<User | Error> => {
+const createUser = async (data: User): Promise<User> => {
   try {
-    if (!data) {
-      return new Error("Invalid input data");
-    }
-
     const newUser: User = {
       ...data,
       id: users.length + 1,
@@ -20,34 +18,40 @@ const createUser = async (data: User): Promise<User | Error> => {
 
     users.push(newUser);
 
-    return newUser
+    return newUser;
   } catch (error) {
-    return new Error("Failed to create user");
+    throw new InternalError("Failed to create user");
   }
 };
 
 const updateUser = (id: number, body: User) => {
-  const userIndex = users.findIndex((user) => user.id === Number(id));
+  const index = users.findIndex((user) => user.id === Number(id));
 
-  users[userIndex] = {
-    ...users[userIndex],
-    ...body
+  if (index === -1) {
+    throw new NotFound("User not found");
   }
 
-  return userIndex || null
-}
+  users[index] = {
+    ...users[index],
+    ...body,
+  };
+
+  return users[index];
+};
 
 const deleteUser = (id: number) => {
-  const userIndex = users.findIndex(user => user.id === Number(id))
+  const index = users.findIndex((user) => user.id === Number(id));
 
-  users.splice(userIndex, 1)
+  if (index === -1) {
+    throw new NotFound("User not found");
+  }
 
-  return userIndex || null
-}
+  delete users[index];
+};
 
 export const userService = {
   getUserById,
   createUser,
   updateUser,
-  deleteUser
+  deleteUser,
 };

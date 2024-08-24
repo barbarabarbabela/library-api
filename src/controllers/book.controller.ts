@@ -29,6 +29,7 @@ const createBook = async (req: Request, res: Response, next: NextFunction) => {
     }
 
     const newBook: Book = await bookService.createBook(body);
+
     res.status(201).json(newBook);
   } catch (error: unknown) {
     next(error);
@@ -54,8 +55,8 @@ const updateBookById = async (
 
 const deleteBookById = (req: Request, res: Response, next: NextFunction) => {
   try {
-    const id = Number(req.params.id);
-    bookService.deleteBookById(id);
+    const { id } = req.params;
+    bookService.deleteBookById(Number(id));
 
     res.status(204).json();
   } catch (error: unknown) {

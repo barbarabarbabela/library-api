@@ -1,66 +1,70 @@
+import ValidationError from "../errors/validation-error";
 import { User } from "../interfaces/user.interface";
 import { userService } from "../services/user.service";
 import users from "../users";
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 
 const getAllUsers = (req: Request, res: Response) => {
   res.status(200).send(users);
 };
 
-const getUserById = (req: Request, res: Response) => {
-  const { id } = req.params;
+const getUserById = (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { id } = req.params;
+    const user = userService.getUserById(Number(id));
 
-  const user = userService.getUserById(Number(id))
-
-  res.status(200).send(user);
+    res.status(200).send(user);
+  } catch (error) {
+    next(error);
+  }
 };
 
-const createUser = (req: Request, res: Response) => {
-  const body = req.body;
+const createUser = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const body: User = req.body;
 
-
-  userService.createUser(body)
-  .then((data: User | Error) => {
-    if (data instanceof Error) {
-      return res.status(400).json({ message: data.message });
+    if (!body.name || !body.email || !body.phone || !body.birthDate) {
+      throw new ValidationError("Invalid input data");
     }
-    res.status(201).json({ message: "User succesfully created" });
-  })
-  .catch((error: unknown) => {
-    console.error(error);
-    res.status(500).json({ error: "Internal Server Error" });
-  });
+
+    const newUser = await userService.createUser(body);
+
+    console.log(newUser);
+
+    res.status(201).json(newUser);
+  } catch (error) {
+    next(error);
+  }
 };
 
-const updateUser = (req: Request, res: Response) => {
-  const { id } = req.params;
-  const body = req.body;
+const updateUser = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { id } = req.params;
+    const body = req.body;
 
-  const user = userService.updateUser(Number(id), body)
+    const user = await userService.updateUser(Number(id), body);
 
-  if(!user) {
-    return res.status(404).send({ message: "User not found" });
+    res.status(200).json(user);
+  } catch (error) {
+    next(error);
   }
-
-  res.status(200).json({ message: "User successfully updated" });
 };
 
-const deleteUser = (req: Request, res: Response) => {
-  const { id } = req.params
-  
-  const user = userService.deleteUser(Number(id))
+const deleteUser = (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { id } = req.params;
+    userService.deleteUser(Number(id));
 
-  if (!user) {
-    return res.status(404).send({ message: "User not found" });
+    res.status(200).json();
+  } catch (error) {
+    next(error);
   }
-
-  res.status(200).json({ message: "User successfully deleted" });
-}
+};
 
 export const userController = {
   getAllUsers,
   getUserById,
   createUser,
   updateUser,
-  deleteUser
+  deleteUser,
 };
