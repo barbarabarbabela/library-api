@@ -8,16 +8,16 @@ const getAllBooks = (_req: Request, res: Response) => {
   res.status(200).send(books);
 };
 
-const getBookById = (req: Request, res: Response) => {
-  const { id } = req.params;
+const getBookById = (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { id } = req.params;
 
-  const book = bookService.getBookById(Number(id));
+    const book = bookService.getBookById(Number(id));
 
-  if (book) {
     return res.status(200).send(book);
+  } catch (error: unknown) {
+    next(error);
   }
-
-  return res.status(404).send({ message: "Book not found" });
 };
 
 const createBook = async (req: Request, res: Response, next: NextFunction) => {

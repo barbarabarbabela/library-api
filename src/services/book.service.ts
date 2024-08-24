@@ -6,7 +6,11 @@ import { Book } from "../interfaces/book.interface";
 const getBookById = (id: number) => {
   const book = books.find((book) => book.id === id);
 
-  return book || null;
+  if (!book) {
+    throw new NotFound("Book not found");
+  }
+
+  return book;
 };
 
 const createBook = async (data: Book): Promise<Book> => {
