@@ -1,9 +1,10 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import books from "../books";
-import { Book } from "../interfaces/book.interface";
 import { bookService } from "../services/book.service";
+import { Book } from "../interfaces/book.interface";
+import ValidationError from "../errors/validation-error";
 
-const getAllBooks = (req: Request, res: Response) => {
+const getAllBooks = (_req: Request, res: Response) => {
   res.status(200).send(books);
 };
 
@@ -19,47 +20,47 @@ const getBookById = (req: Request, res: Response) => {
   return res.status(404).send({ message: "Book not found" });
 };
 
-const createBook = (req: Request, res: Response) => {
-  const body = req.body;
+const createBook = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const body: Book = req.body;
 
-  bookService
-    .createBook(body)
-    .then((data: Book | Error) => {
-      if (data instanceof Error) {
-        return res.status(400).json({ message: data.message });
-      }
-      res.status(201).json({ message: "Book succesfully created" });
-    })
-    .catch((error: unknown) => {
-      console.error(error);
-      res.status(500).json({ error: "Internal Server Error" });
-    });
+    if (!body.title || !body.author || !body.genre || !body.publishedYear) {
+      throw new ValidationError("Invalid input data");
+    }
+
+    const newBook: Book = await bookService.createBook(body);
+    res.status(201).json(newBook);
+  } catch (error: unknown) {
+    next(error);
+  }
 };
 
-const updateBookById = (req: Request, res: Response) => {
-  const { id } = req.params;
+const updateBookById = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { id } = req.params;
+    const { body } = req;
 
-  const { body } = req;
+    const book: Book = await bookService.updateBookById(Number(id), body);
 
-  const book = bookService.updateBookById(Number(id), body);
-
-  if (!book) {
-    return res.status(404).send({ message: "Book not found" });
+    res.status(200).json(book);
+  } catch (error: unknown) {
+    next(error);
   }
-
-  res.status(200).json({ message: "Book successfully updated" });
 };
 
-const deleteBookById = (req: Request, res: Response) => {
-  const id = Number(req.params.id);
+const deleteBookById = (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const id = Number(req.params.id);
+    bookService.deleteBookById(id);
 
-  const book = bookService.deleteBookById(id);
-
-  if (!book) {
-    return res.status(404).send({ message: "Book not found" });
+    res.status(204).json();
+  } catch (error: unknown) {
+    next(error);
   }
-
-  res.status(200).json({ message: "Book successfully deleted" });
 };
 
 export const bookController = {

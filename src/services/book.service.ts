@@ -1,4 +1,6 @@
 import books from "../books";
+import InternalError from "../errors/internal-error";
+import NotFound from "../errors/not-found";
 import { Book } from "../interfaces/book.interface";
 
 const getBookById = (id: number) => {
@@ -7,13 +9,9 @@ const getBookById = (id: number) => {
   return book || null;
 };
 
-const createBook = async (data: Book): Promise<Book | Error> => {
+const createBook = async (data: Book): Promise<Book> => {
   try {
-    if (!data) {
-      return new Error("Invalid input data");
-    }
-
-    const newBook: Book = {
+    const newBook = {
       ...data,
       id: books.length + 1,
     };
@@ -22,27 +20,33 @@ const createBook = async (data: Book): Promise<Book | Error> => {
 
     return newBook;
   } catch (error) {
-    return new Error("Failed to create book");
+    throw new InternalError("Failed to create book");
   }
 };
 
 const updateBookById = async (id: number, body: Book) => {
-  const bookIndex = books.findIndex((book) => book.id === id);
+  const index = books.findIndex((book) => book.id === id);
 
-  books[bookIndex] = {
-    ...books[bookIndex],
+  if (index === -1) {
+    throw new NotFound("Book not found");
+  }
+
+  books[index] = {
+    ...books[index],
     ...body,
   };
 
-  return bookIndex || null;
+  return books[index];
 };
 
 const deleteBookById = (id: number) => {
-  const bookIndex = books.findIndex((book) => book.id === id);
+  const index = books.findIndex((book) => book.id === id);
 
-  books.splice(bookIndex, 1);
+  if (index === -1) {
+    throw new NotFound("Book not found");
+  }
 
-  return bookIndex || null;
+  delete books[index];
 };
 
 export const bookService = {
